@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.12.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/cron4j-2.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
