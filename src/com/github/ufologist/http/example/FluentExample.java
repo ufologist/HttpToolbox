@@ -1,17 +1,29 @@
 package com.github.ufologist.http.example;
 
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.fluent.Async;
+import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONObject;
 
@@ -35,27 +47,30 @@ import com.github.ufologist.http.HttpToolbox;
  */
 public class FluentExample {
     public static void main(String[] args) throws Exception {
-	HttpToolbox.turnOnHttpWireLog();
+        HttpToolbox.turnOnHttpWireLog();
 
-	// 使用URIBuilder来构造复杂的url
+        // 使用URIBuilder来构造复杂的url
         URI uri = new URIBuilder().setScheme("http")
-                    		  .setHost("cn.bing.com")
-                    		  .setPath("/dict/")
-                    		  .setParameter("a", "中文test123")
-                    		  .setParameter("b", "")
-                    		  .build();
+                                  .setHost("cn.bing.com")
+                                  .setPath("/dict/")
+                                  .setParameter("a", "中文test123")
+                                  .setParameter("b", "")
+                                  .build();
 
-//        testFluentGet(uri.toString());
-//        testFluentPost("http://cn.bing.com/dict/");
-//        testFluentWithContext();
-//        testFluentJsonResponse();
+        testFluentGet(uri.toString());
+        testFluentPost("http://cn.bing.com/dict/");
+        testFluentWithContext();
+        testFluentJsonResponse();
         testFluentGzipResponse("http://libs.baidu.com/jquery/2.0.0/jquery.min.js");
+        
+        // 多线程并发模式, 平均1.3毫秒发一个请求(共发200个)
+        testFluentConcurrent("http://localhost:8080/index.jsp", 200);
     }
 
     private static void testFluentGet(String url) {
         try {
             String result = Request.Get(url)
-        	    		   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY) // 必须配置这个去掉cookie2 header
+                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY) // 必须配置这个去掉cookie2 header
                                    .userAgent("Test")
                                    .addHeader(HttpHeaders.ACCEPT, "a") // HttpHeaders包含很多常用的http header
                                    .addHeader("AA", "BB")
@@ -69,13 +84,13 @@ public class FluentExample {
     private static void testFluentPost(String url) {
         try {
             String result = Request.Post(url)
-                    		   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
-                    		   .bodyForm(Form.form().add("a", "abc123")
-                    			   	        .add("b", "中文abc123").build(), Consts.UTF_8)
+                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                   .bodyForm(Form.form().add("a", "abc123")
+                                                        .add("b", "中文abc123").build(), Consts.UTF_8)
                                    // 或者传入自定义类型的body
-                    		   // ContentType包含很多常用的content-type
+                                   // ContentType包含很多常用的content-type
                                    // .bodyString("Important stuff 中文abc123", ContentType.DEFAULT_TEXT)
-                    		   .execute().returnContent().asString();
+                                   .execute().returnContent().asString();
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,8 +100,8 @@ public class FluentExample {
     private static void testFluentJsonResponse() {
         try {
             JSONObject result = Request.Get("http://api.ihackernews.com/page")
-                    		       .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
-                    		       .execute().handleResponse(HttpToolbox.jsonResponseHandler);
+                                       .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                       .execute().handleResponse(HttpToolbox.jsonResponseHandler);
             System.out.println(result.toString(4));
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,7 +111,7 @@ public class FluentExample {
     private static void testFluentGzipResponse(String url) {
         try {
             String result = Request.Get(url)
-        	    		   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
                                    .addHeader(HttpHeaders.ACCEPT_ENCODING, HttpToolbox.ACCEPT_ENCODING_GZIP)
                                    .execute().handleResponse(HttpToolbox.gzipResponseHandler);
             System.out.println(result);
@@ -130,22 +145,79 @@ public class FluentExample {
         // HttpClient httpClient = HttpClientBuilder.create().setMaxConnTotal(20).setMaxConnPerRoute(20);
         // Executor.newInstance(httpClient);
         Executor executor = Executor.newInstance()
-    	    		            .cookieStore(cookieStore);
+                                    .cookieStore(cookieStore);
         
         try {
             // 发送2个一样的请求, 注意查看请求中cookie的情况
             Request request1 = Request.Get("http://www.baidu.com")
-            	   		      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+                                      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
             Request request2 = Request.Get("http://www.baidu.com")
-	   		     	      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+                                      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
-    	    String result1 = executor.execute(request1).returnContent().asString();
-    	    System.out.println(result1);
-    	    // 发送了第一个请求过后, executor会自动将response中的set-cookie补充的客户端的cookie中去(这就是一般浏览器的行为)
-    	    String result2 = executor.execute(request2).returnContent().asString();
+            String result1 = executor.execute(request1).returnContent().asString();
+            System.out.println(result1);
+            // 发送了第一个请求过后, executor会自动将response中的set-cookie补充的客户端的cookie中去(这就是一般浏览器的行为)
+            String result2 = executor.execute(request2).returnContent().asString();
             System.out.println(result2);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    private static void testFluentConcurrent(String url, int count) throws InterruptedException {
+        // Creates a thread pool that creates new threads as needed,
+        // but will reuse previously constructed threads when they are available.
+        // If no existing thread is available, a new thread will be created and added to the pool.
+        // These pools will typically improve the performance of programs that
+        // execute many short-lived asynchronous tasks.
+        // Threads that have not been used for sixty seconds are terminated and
+        // removed from the cache. Thus, a pool that remains idle for long
+        // enough will not consume any resources.
+        ExecutorService threadpool = Executors.newCachedThreadPool();
+        // 如果不传入ExecutorService线程池, 则直接采用多线程模式
+        // Async async = Async.newInstance().use(threadpool);
+        Async async = Async.newInstance();
+
+        // 自定义httpclient, 主要是设置连接池
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
+        // 增大连接数量, 预防出现连接不够用的情况
+        int connMaxTotal = count * 2;
+        // 每个路由(可以看作是每个URL)默认最多可占用多少个连接
+        cm.setDefaultMaxPerRoute(connMaxTotal);
+        // 连接池最大多少个连接
+        cm.setMaxTotal(connMaxTotal);
+        HttpClient hc = new DefaultHttpClient(cm);
+        async.use(Executor.newInstance(hc));
+
+        Request[] requests = new Request[count];
+        for (int i = 0; i < count; i++) {
+            requests[i] = Request.Get(url + "?_=" + i);
+        }
+
+        Queue<Future<Content>> queue = new LinkedList<Future<Content>>();
+        // Execute requests asynchronously
+        for (final Request request : requests) {
+            Future<Content> future = async.execute(request, new FutureCallback<Content>() {
+                public void failed(final Exception ex) {
+                    System.out.println(ex.getMessage() + ": " + request);
+                }
+                public void completed(final Content content) {
+                    System.out.println("Request completed: " + request);
+                }
+                public void cancelled() {
+                }
+            });
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<Content> future = queue.remove();
+            try {
+                future.get();
+            } catch (ExecutionException ex) {
+                ex.printStackTrace(System.err);
+            }
+        }
+        threadpool.shutdown();
     }
 }
