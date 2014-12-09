@@ -18,16 +18,20 @@ public class HttpToolbox {
     private final String CONFIG_PROPERIES = "/config.properties";
     
     /**
-     * 开启httpclient日志
+     * 开启httpclient日志(控制台日志)
+     * 
+     * 如果要开启log4j的日志, 需要在log4j.properties中配置
+     * log4j.logger.org.apache.http.wire=DEBUG
+     * 而且不能同时开启这个日志
      * 
      * http://hc.apache.org/httpcomponents-client-ga/logging.html
      */
     public static void turnOnHttpWireLog() {
-	System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-	System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-	// 设置这个日志更详细, 一般不需要
-//	System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "DEBUG");
-	System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+        // 设置这个日志更详细, 一般不需要
+        // System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "DEBUG");
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");
     }
 
     private void loadConfig() {
