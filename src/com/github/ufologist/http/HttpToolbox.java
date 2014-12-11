@@ -1,5 +1,6 @@
 package com.github.ufologist.http;
 
+import java.awt.Toolkit;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -85,5 +86,18 @@ public class HttpToolbox {
                 MidiPlayer.getInstance().play(HttpToolbox.class.getResource("/win.mid"));
             }
         }).start();
+    }
+    
+    /**
+     * 播放默认的响声, 可用于声音报警
+     */
+    public static void beep() {
+        // http://www.rgagnon.com/javadetails/java-0001.html
+        // C:\WINDOWS\Media\tada.wav
+        // (Windows) The sound used is determined from the setting found in
+        // Control Panel / Devices and Sounds/Sound Scheme/"Default Beep".
+        // If no sound file is selected then the beep() will be a silence.
+        // 控制面板 - 声音和设备 - 声音 - Windows 默认响声 对应的就是这个beep发出的声音
+        Toolkit.getDefaultToolkit().beep();
     }
 }
