@@ -4,6 +4,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.github.ufologist.MidiPlayer;
+
 public class HttpToolbox {
     public static Logger logger = Logger.getLogger(HttpToolbox.class);
 
@@ -74,5 +76,14 @@ public class HttpToolbox {
      */
     public static long getRandom(int min, int max) {
         return (long) Math.floor(Math.random() * (max - min) + min);
+    }
+
+    public static void playSound() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MidiPlayer.getInstance().play(HttpToolbox.class.getResource("/win.mid"));
+            }
+        }).start();
     }
 }
