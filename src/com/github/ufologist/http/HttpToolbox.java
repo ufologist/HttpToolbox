@@ -79,6 +79,13 @@ public class HttpToolbox {
         return (long) Math.floor(Math.random() * (max - min) + min);
     }
 
+    /**
+     * 播放一个midi声音文件
+     * 
+     * XXX 多次调用会造成JVM没有自动退出, 这是由于新起线程造成的, 如果不新起线程就会阻塞.
+     * 如果介意JVM没有退出的, 还是建议使用 beep吧, 
+     * 不过beep比开新线程还慢一点点, 连续5次调用, 新线程方式为141ms, beep为200多ms
+     */
     public static void playSound() {
         new Thread(new Runnable() {
             @Override
