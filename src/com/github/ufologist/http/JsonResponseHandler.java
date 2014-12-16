@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
@@ -17,7 +18,7 @@ public class JsonResponseHandler implements ResponseHandler<JSONObject> {
     public JSONObject handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
         final StatusLine statusLine = response.getStatusLine();
         final HttpEntity entity = response.getEntity();
-        if (statusLine.getStatusCode() >= 300) {
+        if (statusLine.getStatusCode() >= HttpStatus.SC_MULTIPLE_CHOICES) {
             throw new HttpResponseException(statusLine.getStatusCode(),
                     statusLine.getReasonPhrase());
         }
