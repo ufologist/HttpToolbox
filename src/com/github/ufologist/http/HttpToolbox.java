@@ -19,6 +19,7 @@ public class HttpToolbox {
     public static final GzipResponseHandler gzipResponseHandler = new GzipResponseHandler();
 
     private final String CONFIG_PROPERIES = "/config.properties";
+    private static final String DEFAULT_MIDI_PATH = "/win.mid";
     
     /**
      * 开启httpclient日志(控制台日志)
@@ -90,7 +91,7 @@ public class HttpToolbox {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MidiPlayer.getInstance().play(HttpToolbox.class.getResource("/win.mid"));
+                MidiPlayer.getInstance().play(HttpToolbox.class.getResource(DEFAULT_MIDI_PATH));
             }
         }).start();
     }
