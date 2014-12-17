@@ -12,18 +12,16 @@ import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.fluent.Async;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONObject;
 
@@ -38,8 +36,6 @@ import com.github.ufologist.http.HttpToolbox;
  * 使用了默认的(PoolingHttpClientConnectionManager)连接池,
  * MaxPerRoute: 100, MaxTotal: 200.
  * 具体请查看Request.execute
- * 
- * TODO 4.3以上Request不提供config方法了, 还不知道如何弥补这个空缺
  * 
  * @author Sun
  * @version FluentExample.java 2014-11-29 下午1:11:12
@@ -61,8 +57,7 @@ public class FluentExample {
         testFluentPost("http://cn.bing.com/dict/");
         testFluentWithContext();
         testFluentJsonResponse();
-        testFluentGzipResponse("http://libs.baidu.com/jquery/2.0.0/jquery.min.js");
-        
+
         // 多线程并发模式, 平均1.3毫秒发一个请求(共发200个)
         testFluentConcurrent("http://localhost:8080/index.jsp", 200);
     }
@@ -70,7 +65,7 @@ public class FluentExample {
     private static void testFluentGet(String url) {
         try {
             String result = Request.Get(url)
-                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY) // 必须配置这个去掉cookie2 header
+                                   .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY) // 4.3以上Request不提供config方法了, 因此自己定义了一个方法用于设置cookie的协议规范
                                    .userAgent("Test")
                                    .addHeader(HttpHeaders.ACCEPT, "a") // HttpHeaders包含很多常用的http header
                                    .addHeader("AA", "BB")
@@ -84,7 +79,7 @@ public class FluentExample {
     private static void testFluentPost(String url) {
         try {
             String result = Request.Post(url)
-                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                   .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
                                    .bodyForm(Form.form().add("a", "abc123")
                                                         .add("b", "中文abc123").build(), Consts.UTF_8)
                                    // 或者传入自定义类型的body
@@ -100,7 +95,7 @@ public class FluentExample {
     private static void testFluentJsonResponse() {
         try {
             JSONObject result = Request.Get("http://api.ihackernews.com/page")
-                                       .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                       .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
                                        .execute().handleResponse(HttpToolbox.jsonResponseHandler);
             System.out.println(result.toString(4));
         } catch (Exception e) {
@@ -108,18 +103,6 @@ public class FluentExample {
         }
     }
 
-    private static void testFluentGzipResponse(String url) {
-        try {
-            String result = Request.Get(url)
-                                   .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
-                                   .addHeader(HttpHeaders.ACCEPT_ENCODING, HttpToolbox.ACCEPT_ENCODING_GZIP)
-                                   .execute().handleResponse(HttpToolbox.gzipResponseHandler);
-            System.out.println(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
     /**
      * 由于Fluent API默认是共用的一个HttpClient实例, 因此HTTP的session状态本身就会被控制住.
      * 
@@ -150,9 +133,9 @@ public class FluentExample {
         try {
             // 发送2个一样的请求, 注意查看请求中cookie的情况
             Request request1 = Request.Get("http://www.baidu.com")
-                                      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+                                      .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
             Request request2 = Request.Get("http://www.baidu.com")
-                                      .config(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+                                      .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
 
             String result1 = executor.execute(request1).returnContent().asString();
             System.out.println(result1);
@@ -178,15 +161,12 @@ public class FluentExample {
         // Async async = Async.newInstance().use(threadpool);
         Async async = Async.newInstance();
 
-        // 自定义httpclient, 主要是设置连接池
-        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
         // 增大连接数量, 预防出现连接不够用的情况
         int connMaxTotal = count * 2;
-        // 每个路由(可以看作是每个URL)默认最多可占用多少个连接
-        cm.setDefaultMaxPerRoute(connMaxTotal);
-        // 连接池最大多少个连接
-        cm.setMaxTotal(connMaxTotal);
-        HttpClient hc = new DefaultHttpClient(cm);
+        // 自定义httpclient, 主要是设置连接池
+        // MaxPerRoute: 每个路由(可以看作是每个URL)默认最多可占用多少个连接
+        // connMaxTotal: 连接池最大多少个连接
+        HttpClient hc = HttpClients.custom().setMaxConnPerRoute(connMaxTotal).setMaxConnTotal(connMaxTotal).build();
         async.use(Executor.newInstance(hc));
 
         Request[] requests = new Request[count];
