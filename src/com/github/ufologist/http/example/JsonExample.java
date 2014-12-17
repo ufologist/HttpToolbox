@@ -14,9 +14,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class JsonExample {
     public static void main(String[] args) {
-	testFastJson();
-	testFastJsonChinese();
-	testOrgJson();
+        testFastJson();
+        testFastJsonChinese();
+        testOrgJson();
         testReadConsoleInput();
     }
     
@@ -26,7 +26,7 @@ public class JsonExample {
         j.put("p1", "1");
         j.put("p3", "3");
 
-	String jsonString = JSON.toJSONString(j, SerializerFeature.PrettyFormat);
+        String jsonString = JSON.toJSONString(j, SerializerFeature.PrettyFormat);
         System.out.println(jsonString);
     }
     private static void testFastJsonChinese() {
@@ -36,7 +36,7 @@ public class JsonExample {
         j.put("p3", "3");
         j.put("date", new Date());
 
-	String jsonString = JSON.toJSONString(j, SerializerFeature.PrettyFormat, SerializerFeature.BrowserCompatible);
+        String jsonString = JSON.toJSONString(j, SerializerFeature.PrettyFormat, SerializerFeature.BrowserCompatible);
         System.out.println(jsonString);
     }
 
@@ -46,6 +46,7 @@ public class JsonExample {
         j.put("p1", "1");
         j.put("p3", "3");
         j.put("date", new Date());
+
         // 注意: 输出时属性的顺序与设置时是一样的
         System.out.println(j.toString(4));
     }
