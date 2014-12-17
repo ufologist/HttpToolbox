@@ -4,6 +4,12 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 import java.util.Date;
 
+/**
+ * 定时任务
+ * 
+ * @author Sun
+ * @version SchedulerExample.java 2014-12-3 下午3:20:12
+ */
 public class SchedulerExample {
     public static void main(String[] args) {
         testScheduler();

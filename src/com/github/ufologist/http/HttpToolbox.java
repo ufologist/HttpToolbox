@@ -16,7 +16,6 @@ public class HttpToolbox {
     public static final String ACCEPT_ENCODING_GZIP = "gzip,deflate,sdch";
 
     public static final JsonResponseHandler jsonResponseHandler = new JsonResponseHandler();
-    public static final GzipResponseHandler gzipResponseHandler = new GzipResponseHandler();
 
     private final String CONFIG_PROPERIES = "/config.properties";
     private static final String DEFAULT_MIDI_PATH = "/win.mid";

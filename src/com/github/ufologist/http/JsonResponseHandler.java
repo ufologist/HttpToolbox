@@ -13,6 +13,12 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+/**
+ * 处理返回JSON数据的HTTP请求
+ * 
+ * @author Sun
+ * @version JsonResponseHandler.java 2014-12-3 下午4:20:12
+ */
 public class JsonResponseHandler implements ResponseHandler<JSONObject> {
     @Override
     public JSONObject handleResponse(HttpResponse response) throws ClientProtocolException, IOException {

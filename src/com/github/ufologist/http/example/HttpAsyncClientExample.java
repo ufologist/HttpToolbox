@@ -12,6 +12,12 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 
+/**
+ * 异步 HTTP 请求
+ * 
+ * @author Sun
+ * @version HttpAsyncClientExample.java 2014-12-17 下午17:17:21
+ */
 public class HttpAsyncClientExample {
     public static void main(String[] args) throws Exception {
         testAsync("http://localhost:8080/index.jsp", 200);

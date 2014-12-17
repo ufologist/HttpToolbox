@@ -12,6 +12,12 @@ import org.json.JSONObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+/**
+ * 处理JSON数据
+ * 
+ * @author Sun
+ * @version JsonExample.java 2014-11-29 下午1:11:12
+ */
 public class JsonExample {
     public static void main(String[] args) {
         testFastJson();
