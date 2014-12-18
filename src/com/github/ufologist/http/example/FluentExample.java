@@ -49,8 +49,8 @@ public class FluentExample {
         URI uri = new URIBuilder().setScheme("http")
                                   .setHost("cn.bing.com")
                                   .setPath("/dict/")
-                                  .setParameter("a", "中文test123")
-                                  .setParameter("b", "")
+                                  .addParameter("a", "中文test123")
+                                  .addParameter("b", "")
                                   .build();
 
         testFluentGet(uri.toString());
