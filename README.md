@@ -4,6 +4,7 @@ v0.1.0 2014-12-1
 ## 用途
 * 列举了HttpClient的常用功能, 让我们可以快速上手完成发送HTTP请求的操作
 * 并发请求
+* 异步请求(httpasyncclient)
 * 解析JSON
 * 支持gzip
 * 常用的log4j配置
@@ -11,8 +12,10 @@ v0.1.0 2014-12-1
 * 定时调度任务
 
 ## 包含的第3方库
-* [HttpClient](http://hc.apache.org)
+* [HttpClient 4.3.6](http://hc.apache.org)
   用于发送HTTP请求
+* [HttpAsyncClient 4.0.2]
+  用于发送异步HTTP请求
 * [fastjson](https://github.com/alibaba/fastjson)
   用于将Object转成JSON
 * [org.json](http://www.json.org/java/index.html)
