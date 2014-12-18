@@ -83,9 +83,11 @@ import com.github.ufologist.http.HttpToolbox;
  *             }
  *         }
  *     } finally {
+ *         // HttpClientUtils.closeQuietly(response);
  *         response.close();
  *     }
  * } finally {
+ *     // HttpClientUtils.closeQuietly(httpclient);
  *     httpclient.close();
  * }
  * 
