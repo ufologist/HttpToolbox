@@ -1,8 +1,5 @@
 package com.github.ufologist.http.example;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +20,6 @@ public class JsonExample {
         testFastJson();
         testFastJsonChinese();
         testOrgJson();
-        testReadConsoleInput();
     }
     
     private static void testFastJson() {
@@ -55,26 +51,5 @@ public class JsonExample {
 
         // 注意: 输出时属性的顺序与设置时是一样的
         System.out.println(j.toString(4));
-    }
-    
-    private static void testReadConsoleInput() {
-        BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-
-        try {
-            System.out.print("Enter username: ");
-            String user = console.readLine();
-            System.out.print("Enter password: ");
-            String password = console.readLine();
-            System.out.println(user + "@" + password);
-            console.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                console.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

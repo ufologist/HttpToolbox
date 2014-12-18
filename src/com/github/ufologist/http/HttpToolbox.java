@@ -1,12 +1,22 @@
 package com.github.ufologist.http;
 
 import java.awt.Toolkit;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.github.ufologist.MidiPlayer;
 
+/**
+ * HTTP 工具箱
+ * 
+ * @author Sun
+ * @version HttpToolbox.java 2014-12-3 下午5:20:12
+ */
 public class HttpToolbox {
     public static Logger logger = Logger.getLogger(HttpToolbox.class);
 
@@ -20,6 +30,13 @@ public class HttpToolbox {
     private final String CONFIG_PROPERIES = "/config.properties";
     private static final String DEFAULT_MIDI_PATH = "/win.mid";
     
+    public static void main(String[] args) throws Exception {
+        sleep(1000, 2000);
+        playSound();
+        beep();
+        testReadConsoleInput();
+    }
+
     /**
      * 开启httpclient日志(控制台日志)
      * 
@@ -96,7 +113,7 @@ public class HttpToolbox {
     }
     
     /**
-     * 播放默认的响声, 可用于声音报警
+     * 播放默认的响声, 可用于声音报警, 不会阻塞主线程
      */
     public static void beep() {
         // http://www.rgagnon.com/javadetails/java-0001.html
@@ -106,5 +123,38 @@ public class HttpToolbox {
         // If no sound file is selected then the beep() will be a silence.
         // 控制面板 - 声音和设备 - 声音 - Windows 默认响声 对应的就是这个beep发出的声音
         Toolkit.getDefaultToolkit().beep();
+    }
+
+    private static void testReadConsoleInput() throws UnsupportedEncodingException {
+        BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+
+        try {
+            // 在eclipse的console中输出会有乱码, 打包成jar在cmd下运行没有这个问题(输出file.encoding为GBK)
+            // file.encoding: UTF-8
+            // Enter username: 中文123
+            // Enter password: test123
+            // 乱码@test123
+            // 
+            // 解决办法是需要修改 Run Configurations - Common - Encoding - GB2312
+            // 之后运行就不会有乱码了
+            // file.encoding: GB2312
+            // Enter username: 中文123
+            // Enter password: test123
+            // 中文123@test123
+            System.out.println("file.encoding: " + System.getProperty("file.encoding"));
+            System.out.print("Enter username: ");
+            String user = console.readLine();
+            System.out.print("Enter password: ");
+            String password = console.readLine();
+            System.out.println(user + "@" + password);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                console.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
