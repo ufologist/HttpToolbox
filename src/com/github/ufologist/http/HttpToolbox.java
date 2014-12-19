@@ -65,7 +65,7 @@ public class HttpToolbox {
 
     private static void initConfig() {
         try {
-            InputStreamEntity json = new InputStreamEntity(HttpToolbox.class.getResourceAsStream(CONFIG_JSON), ContentType.APPLICATION_JSON);
+            InputStreamEntity json = new InputStreamEntity(HttpToolbox.class.getResourceAsStream(CONFIG_JSON_PATH), ContentType.APPLICATION_JSON);
             config = new JSONObject(EntityUtils.toString(json));
         } catch (Exception e) {
             e.printStackTrace();
