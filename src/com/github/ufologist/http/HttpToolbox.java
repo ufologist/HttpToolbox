@@ -5,9 +5,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Properties;
 
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.github.ufologist.MidiPlayer;
 
@@ -27,16 +30,22 @@ public class HttpToolbox {
 
     public static final JsonResponseHandler jsonResponseHandler = new JsonResponseHandler();
 
-    private final String CONFIG_PROPERIES = "/config.properties";
+    private static final String CONFIG_PROPERIES = "/config.json";
     private static final String DEFAULT_MIDI_PATH = "/win.mid";
+    private static JSONObject config;
+
+    static {
+        initConfig();
+    }
     
     public static void main(String[] args) throws Exception {
         sleep(1000, 2000);
         playSound();
         beep();
         testReadConsoleInput();
+        System.out.println(config.toString(4));
     }
-
+    
     /**
      * 开启httpclient日志(控制台日志)
      * 
@@ -54,16 +63,10 @@ public class HttpToolbox {
         System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");
     }
 
-    private void loadConfig() {
-        Properties properties = new Properties();
+    private static void initConfig() {
         try {
-            properties.load(this.getClass().getResourceAsStream(CONFIG_PROPERIES));
-            String configUserName = properties.getProperty("userName");
-
-            if (configUserName != null) {
-                // 覆盖默认配置
-                System.out.println(configUserName);
-            }
+            InputStreamEntity json = new InputStreamEntity(HttpToolbox.class.getResourceAsStream(CONFIG_PROPERIES), ContentType.APPLICATION_JSON);
+            config = new JSONObject(EntityUtils.toString(json));
         } catch (Exception e) {
             e.printStackTrace();
         }

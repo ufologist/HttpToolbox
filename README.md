@@ -1,10 +1,10 @@
 # HTTP 工具箱
-v0.1.0 2014-12-1
+v0.1.0 2014-12-19
 
 ## 用途
-* 列举了HttpClient的常用功能, 让我们可以快速上手完成发送HTTP请求的操作
+* 列举了HttpClient的常用功能, 让我们可以快速上手完成发送HTTP请求的任务
 * 并发请求
-* 异步请求(httpasyncclient)
+* 异步请求(HttpAsyncClient)
 * 解析JSON
 * 支持gzip
 * 常用的log4j配置
@@ -14,7 +14,7 @@ v0.1.0 2014-12-1
 ## 包含的第3方库
 * [HttpClient 4.3.6](http://hc.apache.org)
   用于发送HTTP请求
-* [HttpAsyncClient 4.0.2]
+* HttpAsyncClient 4.0.2
   用于发送异步HTTP请求
 * [fastjson](https://github.com/alibaba/fastjson)
   用于将Object转成JSON
@@ -23,3 +23,4 @@ v0.1.0 2014-12-1
   
   如果想更多的定制格式化输出, 请修改org.json.JSONObject.write
 * [cron4j](http://www.sauronsoftware.it/projects/cron4j/)
+  用于做定时调度
