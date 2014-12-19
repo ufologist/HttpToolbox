@@ -94,7 +94,7 @@ public class FluentExample {
     
     private static void testFluentJsonResponse() {
         try {
-            JSONObject result = Request.Get("http://api.ihackernews.com/page")
+            JSONObject result = Request.Get("http://m.weather.com.cn/data/101010100.html")
                                        .cookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
                                        .execute().handleResponse(HttpToolbox.jsonResponseHandler);
             System.out.println(result.toString(4));
