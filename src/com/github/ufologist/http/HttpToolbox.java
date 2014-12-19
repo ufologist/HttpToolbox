@@ -30,7 +30,7 @@ public class HttpToolbox {
 
     public static final JsonResponseHandler jsonResponseHandler = new JsonResponseHandler();
 
-    private static final String CONFIG_PROPERIES = "/config.json";
+    private static final String CONFIG_JSON_PATH = "/config.json";
     private static final String DEFAULT_MIDI_PATH = "/win.mid";
     private static JSONObject config;
 
@@ -65,7 +65,7 @@ public class HttpToolbox {
 
     private static void initConfig() {
         try {
-            InputStreamEntity json = new InputStreamEntity(HttpToolbox.class.getResourceAsStream(CONFIG_PROPERIES), ContentType.APPLICATION_JSON);
+            InputStreamEntity json = new InputStreamEntity(HttpToolbox.class.getResourceAsStream(CONFIG_JSON), ContentType.APPLICATION_JSON);
             config = new JSONObject(EntityUtils.toString(json));
         } catch (Exception e) {
             e.printStackTrace();
