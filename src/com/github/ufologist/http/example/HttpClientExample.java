@@ -15,6 +15,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -24,6 +25,8 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpProcessorBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.github.ufologist.http.HttpToolbox;
@@ -121,6 +124,8 @@ public class HttpClientExample {
         // 4.3版本的RequestBuilder已经非常好用了
         httpUtil.requestBuilderGet();
         httpUtil.requestBuilderPost();
+
+        httpUtil.turnOffDefaultInterceptor();
     }
 
     public HttpClientExample(String userAgent) {
@@ -159,6 +164,29 @@ public class HttpClientExample {
                                                .build();
 
         return executeRequest(request, true);
+    }
+    
+    /**
+     * 完全控制由httpclient发出去的HTTP请求协议的规格
+     */
+    private void turnOffDefaultInterceptor() throws Exception {
+        // 注意看这个HTTP请求的协议, 完全由我们决定控制, 只会有一个User-Agent头
+        // POST / HTTP/1.1
+        // User-Agent: Android
+        HttpUriRequest request = RequestBuilder.post()
+                                               .setUri("http://baidu.com")
+                                               .addHeader("User-Agent", "Android")
+                                               .build();
+
+        // 删除所有的HttpRequestInterceptor/HttpResponseInterceptor
+        // 这样所有HTTP请求头都可以由我们自己来控制, 因此HTTP header中就不会出现你没有设置过的header了(有一些都是Interceptor自动加进去的)
+        // 也不会自动解压gzip的response了
+        CloseableHttpClient hc = HttpClients.custom()
+                                            .setHttpProcessor(HttpProcessorBuilder.create().build())
+                                            .build();
+
+        CloseableHttpResponse response = hc.execute(request);
+        System.out.println(EntityUtils.toString(response.getEntity()));
     }
     
     /**
